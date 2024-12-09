@@ -1,57 +1,221 @@
-
 # Task Management System
 
 ## Overview
-A simple Task Management System in Python that allows users to manage tasks (personal or work), view pending/overdue tasks, and save/load tasks from a CSV file.
+The **Task Management System** is a Python-based application designed to manage personal and work-related tasks efficiently. Users can create, update, view, and delete tasks, as well as filter tasks by type or status. The application also supports saving and loading tasks from a CSV file.
+
+---
 
 ## Features
-- Create personal/work tasks
-- View tasks by type
-- Delete tasks by ID
-- Save/load tasks from CSV
-- View pending and overdue tasks
+- **Task Creation**: Add tasks with customizable attributes (title, due date, description, etc.).
+- **Task Management**:
+  - Update task attributes such as status or priority.
+  - View tasks by type (personal or work).
+  - Identify pending and overdue tasks.
+  - Delete tasks by ID.
+- **CSV Integration**: Save tasks to a CSV file and reload them for future use.
+
+---
 
 ## Setup Instructions
 
 ### Requirements
-- Python 3.x
+- **Python**: Version 3.x is required.
 
-### Running the Program
-1. Clone or download the project.
-2. Navigate to the project directory.
-3. Run the following:
+### Steps to Run
+1. **Clone the Repository**:
+   ```bash
+   git clone <repository_url>
+   cd task-management-system
+   ```
+2. **Create and Activate Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # For Linux/Mac
+   venv\Scripts\activate     # For Windows
+   ```
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Run the Application**:
    ```bash
    python main.py
    ```
 
-## Classes & Methods
+---
 
-1. **Task Class**
-   - Manages task details (ID, title, due date, description, status).
-   - `mark_completed()`: Marks task as completed.
-   - `str()`: Returns task info as a string.
-   - `description.setter`: Validates description (max 15 characters).
+## API Documentation
 
-2. **PersonalTask Class** (inherits Task)
-   - Adds priority handling (`low`, `medium`, `high`).
-   - `is_high_priority()`: Checks if task priority is high.
-   - `set_priority()`: Sets task priority.
+### **Endpoints**
 
-3. **WorkTask Class** (inherits Task)
-   - Manages team members.
-   - `add_team_member()`: Adds team members.
+#### 1. Create Task
+- **URL**: `/tasks`
+- **Method**: `POST`
+- **Payload** (JSON):
+  ```json
+  {
+    "title": "Task Title",
+    "description": "Optional description",
+    "due_date": "YYYY-MM-DD",
+    "priority": "low/medium/high",
+    "type": "personal/work"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Task created successfully",
+    "id": 1
+  }
+  ```
 
-4. **TaskManager Class**
-   - Manages tasks (add, list, delete, save/load).
-   - `add_task()`: Adds a task.
-   - `list_tasks()`: Lists tasks by type.
-   - `delete_task()`: Deletes task by ID.
-   - `save_tasks()`: Saves tasks to CSV.
-   - `load_tasks()`: Loads tasks from CSV.
+#### 2. Get All Tasks
+- **URL**: `/tasks`
+- **Method**: `GET`
+- **Query Parameter** (optional): `type` (e.g., `/tasks?type=personal`)
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "title": "Task Title",
+      "description": "Description",
+      "due_date": "YYYY-MM-DD",
+      "priority": "low",
+      "type": "personal",
+      "status": "pending"
+    }
+  ]
+  ```
+
+#### 3. Get Pending Tasks
+- **URL**: `/tasks/pending`
+- **Method**: `GET`
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "title": "Task Title",
+      "description": "Description",
+      "due_date": "YYYY-MM-DD",
+      "priority": "low",
+      "type": "personal",
+      "status": "pending"
+    }
+  ]
+  ```
+
+#### 4. Get Overdue Tasks
+- **URL**: `/tasks/overdue`
+- **Method**: `GET`
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "title": "Task Title",
+      "description": "Description",
+      "due_date": "YYYY-MM-DD",
+      "priority": "low",
+      "type": "personal",
+      "status": "pending"
+    }
+  ]
+  ```
+
+#### 5. Update Task
+- **URL**: `/tasks/<task_id>`
+- **Method**: `PUT`
+- **Payload** (JSON):
+  ```json
+  {
+    "description": "Updated description",
+    "priority": "high",
+    "status": "completed"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Task updated successfully"
+  }
+  ```
+
+#### 6. Delete Task
+- **URL**: `/tasks/<task_id>`
+- **Method**: `DELETE`
+- **Response**:
+  ```json
+  {
+    "message": "Task deleted successfully"
+  }
+  ```
+
+---
+
+## Database Schema
+
+- **Table Name**: `tasks`
+- **Columns**:
+  | Column Name | Type    | Description                               |
+  |-------------|---------|-------------------------------------------|
+  | `id`        | INTEGER | Auto-incremented primary key             |
+  | `title`     | TEXT    | Task title                               |
+  | `description`| TEXT   | Optional task description                |
+  | `due_date`  | TEXT    | Due date in `YYYY-MM-DD` format          |
+  | `priority`  | TEXT    | Task priority (`low/medium/high`)        |
+  | `type`      | TEXT    | Task type (`personal/work`)              |
+  | `status`    | TEXT    | Task status (`pending/completed`)        |
+
+---
+
+## Example Usage
+
+### **Create a Task**
+```bash
+curl -X POST http://127.0.0.1:5000/tasks -H "Content-Type: application/json" -d '{
+  "title": "Finish project",
+  "description": "Complete by end of the week",
+  "due_date": "2024-12-15",
+  "priority": "high",
+  "type": "work"
+}'
+```
+
+### **Get All Tasks**
+```bash
+curl -X GET http://127.0.0.1:5000/tasks
+```
+
+### **Get Pending Tasks**
+```bash
+curl -X GET http://127.0.0.1:5000/tasks/pending
+```
+
+### **Get Overdue Tasks**
+```bash
+curl -X GET http://127.0.0.1:5000/tasks/overdue
+```
+
+### **Update a Task**
+```bash
+curl -X PUT http://127.0.0.1:5000/tasks/1 -H "Content-Type: application/json" -d '{
+  "status": "completed",
+  "priority": "medium"
+}'
+```
+
+### **Delete a Task**
+```bash
+curl -X DELETE http://127.0.0.1:5000/tasks/1
+```
+
+---
 
 ## Error Handling
-- **Description Length**: Raises `ValueError` if description exceeds 15 characters.
-- **Invalid Task Type**: Error message for invalid task type input.
-- **Invalid Priority**: Error message for invalid priority input.
-- **Task Not Found**: Error if task ID is not found when deleting.
+
+1. **Invalid Input**: Returns `400` with an error message for invalid payloads or missing fields.
+2. **Task Not Found**: Returns `404` if the task ID does not exist.
+3. **Invalid Query Parameter**: Handles invalid query parameters gracefully.
  
